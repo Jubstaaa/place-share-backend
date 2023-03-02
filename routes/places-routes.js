@@ -5,7 +5,7 @@ const placesValidations = require("../validations/places-validations");
 
 const router = express.Router();
 
-router.post("/add", placesValidations.addPlace, placesControllers.createPlace);
+router.post("/", placesValidations.addPlace, placesControllers.createPlace);
 
 router.get("/:placeId", placesControllers.getPlaceById);
 
@@ -17,6 +17,6 @@ router.patch(
   placesControllers.updatePlaceByUserId
 );
 
-router.delete("/:placeId", placesControllers.deletePlaceByUserId);
+router.delete("/:placeId", placesControllers.deletePlace);
 
 module.exports = router;
