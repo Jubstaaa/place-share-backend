@@ -134,7 +134,6 @@ const updatePlaceByUserId = async (req, res, next) => {
 
   const { title, description } = req.body;
   const placeId = req.params.placeId;
-
   let place;
 
   try {

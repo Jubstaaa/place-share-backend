@@ -37,11 +37,6 @@ const signup = async (req, res, next) => {
 
   const { name, email, password } = req.body;
 
-  const hasUser = users.find((user) => user.email === email);
-  if (hasUser) {
-    throw new HttpError("Could not create user, email already exists.", 422);
-  }
-
   let existingUser;
   try {
     existingUser = await User.findOne({ email });
@@ -81,8 +76,7 @@ const signup = async (req, res, next) => {
 };
 
 const login = async (req, res, next) => {
-  const { email, password } = req.body;
-
+  const { email, password } = req.query;
   let existingUser;
   try {
     existingUser = await User.findOne({ email });
@@ -101,7 +95,10 @@ const login = async (req, res, next) => {
     );
     return next(error);
   }
-  res.json({ message: "Logged in!" });
+  res.json({
+    user: existingUser.toObject({ getters: true }),
+    message: "Logged in!",
+  });
 };
 
 exports.getUsers = getUsers;
