@@ -2,10 +2,16 @@ const express = require("express");
 
 const placesControllers = require("../controllers/places-controllers");
 const placesValidations = require("../validations/places-validations");
+const fileUpload = require("../middleware/file-upload");
 
 const router = express.Router();
 
-router.post("/", placesValidations.addPlace, placesControllers.createPlace);
+router.post(
+  "/",
+  fileUpload.single("image"),
+  placesValidations.addPlace,
+  placesControllers.createPlace
+);
 
 router.get("/:placeId", placesControllers.getPlaceById);
 

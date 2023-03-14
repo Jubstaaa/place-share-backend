@@ -1,6 +1,6 @@
-const { v4: uuid } = require("uuid");
 const { validationResult } = require("express-validator");
 const mongoose = require("mongoose");
+const fs = require("fs");
 
 const HttpError = require("../models/http-error");
 const getCoordsForAddress = require("../utils/location");
@@ -82,8 +82,7 @@ const createPlace = async (req, res, next) => {
     description,
     address,
     location,
-    image:
-      "https://public-content-aetn.video.aetnd.com/video-thumbnails/AETN-History_VMS/21/202/tdih-may01-HD.jpg",
+    image: req.file.path,
     creator,
   });
 
@@ -160,6 +159,7 @@ const deletePlace = async (req, res, next) => {
   const placeId = req.params.placeId;
 
   let place;
+
   try {
     const session = await mongoose.startSession();
     session.startTransaction();
@@ -181,6 +181,8 @@ const deletePlace = async (req, res, next) => {
     const error = new HttpError("Could not find place for provided id.", 404);
     return next(error);
   }
+  const imagePath = place.image;
+  fs.unlink(imagePath, (err) => console.log(err));
 
   res.status(200).json({ message: "Place deleted." });
 };
