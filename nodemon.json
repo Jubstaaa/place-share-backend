@@ -1,0 +1,9 @@
+{
+    "env":{
+        "DB_USER":"jubstaa",
+        "DB_PASSWORD":"GDbs2Cbfqwj0gT2S",
+        "DB_NAME":"place-share",
+        "GOOGLE_API_KEY":"AIzaSyDAvOJeNErIpF22hZrAKgtd_hg_ol2JKKI",
+        "JWT_KEY":"token"
+    }
+}

@@ -83,13 +83,13 @@ const createPlace = async (req, res, next) => {
     address,
     location,
     image: req.file.path,
-    creator,
+    creator: req.userData.userId,
   });
 
   let user;
 
   try {
-    user = await User.findById(creator);
+    user = await User.findById(req.userData.userId);
   } catch (err) {
     const error = new HttpError(
       "Creating place failed, please try again.",
@@ -134,22 +134,28 @@ const updatePlaceByUserId = async (req, res, next) => {
   const { title, description } = req.body;
   const placeId = req.params.placeId;
   let place;
-
   try {
-    place = await Place.findByIdAndUpdate(
-      placeId,
+    place = await Place.findOneAndUpdate(
+      { _id: placeId, creator: req.userData.userId },
       {
         title,
         description,
       },
       { returnDocument: "after" }
     );
+    if (!place) {
+      const error = new HttpError(
+        "You are not allowed to edit this place.",
+        401
+      );
+      return next(error);
+    }
   } catch (err) {
     const error = new HttpError(
       "Something went wrong, could not update place.",
       500
     );
-    return next(err);
+    return next(error);
   }
 
   res.status(200).json({ place: place.toObject({ getters: true }) });
@@ -163,9 +169,10 @@ const deletePlace = async (req, res, next) => {
   try {
     const session = await mongoose.startSession();
     session.startTransaction();
-    place = await Place.findByIdAndRemove(placeId, { session }).populate(
-      "creator"
-    );
+    place = await Place.findOneAndRemove(
+      { _id: placeId, creator: req.userData.userId },
+      { session }
+    ).populate("creator");
     place.creator.places.pull(place);
     await place.creator.save({ session });
     await session.commitTransaction();
