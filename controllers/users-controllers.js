@@ -4,6 +4,8 @@ const jwt = require("jsonwebtoken");
 
 const HttpError = require("../models/http-error");
 const User = require("../models/user");
+const bucket = require("../utils/firestore")
+
 
 const getUsers = async (req, res, next) => {
   let users;
@@ -69,10 +71,27 @@ const signup = async (req, res, next) => {
     return next(error);
   }
 
+  let file;
+  try {
+    await bucket
+      .upload(req.file.path)
+      .then((res) => {
+        file = `https://firebasestorage.googleapis.com/v0/b/${res[0].metadata.bucket}/o/${res[0].metadata.name}?alt=media`;
+        // onSuccess(res)
+      })
+      .catch((err) => {
+        console.log(err);
+        // onError(err)
+      });
+  } catch (err) {
+    console.log(err);
+  }
+
+
   const createdUser = new User({
     name,
     email,
-    image: req.file.path,
+    image: file,
     password: hashedPassword,
     places: [],
   });

@@ -6,6 +6,7 @@ const HttpError = require("../models/http-error");
 const getCoordsForAddress = require("../utils/location");
 const Place = require("../models/place");
 const User = require("../models/user");
+const bucket = require("../utils/firestore");
 
 const getPlaceById = async (req, res, next) => {
   const placeId = req.params.placeId;
@@ -77,12 +78,28 @@ const createPlace = async (req, res, next) => {
     return next(error);
   }
 
+  let file;
+  try {
+    await bucket
+      .upload(req.file.path)
+      .then((res) => {
+        file = `https://firebasestorage.googleapis.com/v0/b/${res[0].metadata.bucket}/o/${res[0].metadata.name}?alt=media`;
+        // onSuccess(res)
+      })
+      .catch((err) => {
+        console.log(err);
+        // onError(err)
+      });
+  } catch (err) {
+    console.log(err);
+  }
+
   const createdPlace = new Place({
     title,
     description,
     address,
     location,
-    image: req.file.path,
+    image: file,
     creator: req.userData.userId,
   });
 
