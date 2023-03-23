@@ -18,6 +18,7 @@
     - mongoose
     - jsonwebtoken
     - bcryptjs
+    - firebase storage bucket
 
 ## Features
 
